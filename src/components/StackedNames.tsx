@@ -47,23 +47,6 @@ export function StackedNames() {
         const inner = card.querySelector('.name-card-inner');
         const stickyTop = 120 + i * 16;
         
-        // Entrance animation
-        gsap.fromTo(inner, 
-          { opacity: 0, y: 100, scale: 0.9 },
-          {
-            opacity: 1, 
-            y: 0, 
-            scale: 1,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%", 
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
-
         // Stacking / Overlay effect (scale down & fade as next card covers it)
         if (i < cards.length - 1) {
           const nextStickyTop = 120 + (i + 1) * 16;
