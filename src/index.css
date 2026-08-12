@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+  --font-serif: "Cormorant Garamond", serif;
+  
+  --color-natural-bg: #F0F4F8;
+  --color-natural-text: #1E293B;
+  --color-natural-accent: #64748B;
+  --color-natural-border: #CBD5E1;
+  --color-natural-warm: #94A3B8;
+  --color-natural-light: #E2E8F0;
+  --color-natural-soft: #F8FAFC;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-natural-bg);
+  color: var(--color-natural-text);
+}

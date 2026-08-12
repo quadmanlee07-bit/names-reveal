@@ -1,0 +1,6 @@
+{
+  "name": "Name Reveal",
+  "description": "A cinematic countdown and name reveal website with a guestbook.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
