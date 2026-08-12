@@ -1,19 +1,23 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import confetti from 'canvas-confetti';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface SceneProps {
   children: ReactNode;
   className?: string;
+  onReveal?: () => void;
 }
 
-function Scene({ children, className = "" }: SceneProps) {
+function Scene({ children, className = "", onReveal }: SceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let hasRevealed = false;
+    
     const ctx = gsap.context(() => {
       gsap.fromTo(contentRef.current,
         { opacity: 0, y: 40, filter: 'blur(10px)' },
@@ -26,7 +30,13 @@ function Scene({ children, className = "" }: SceneProps) {
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top 85%',
-            toggleActions: 'play none none reverse'
+            toggleActions: 'play none none reverse',
+            onEnter: () => {
+              if (onReveal && !hasRevealed) {
+                hasRevealed = true;
+                onReveal();
+              }
+            }
           }
         }
       );
@@ -57,8 +67,38 @@ interface StorySequenceProps {
 export function StorySequence({ babyName }: StorySequenceProps) {
   const firstName = babyName.split(' ')[0];
 
+  const handleNameReveal = () => {
+    const duration = 2500;
+    const end = Date.now() + duration;
+
+    const colors = ['#e6d5c3', '#8b7355', '#d4c5b9', '#ffffff'];
+
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors,
+        disableForReducedMotion: true
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors,
+        disableForReducedMotion: true
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  };
+
   return (
-    <div className="w-full relative z-20">
+    <div id="story-sequence" className="w-full relative z-20">
       
       <Scene>
         <p className="text-2xl md:text-4xl font-light text-[var(--color-natural-text)]/80 tracking-wide max-w-2xl mx-auto">
@@ -129,7 +169,7 @@ export function StorySequence({ babyName }: StorySequenceProps) {
         </p>
       </Scene>
 
-      <Scene>
+      <Scene onReveal={handleNameReveal}>
         <div className="relative group max-w-3xl mx-auto w-full px-4">
           <div className="absolute inset-0 bg-[var(--color-natural-border)] rounded-[32px] md:rounded-[40px] rotate-2 scale-95 opacity-50"></div>
           <div className="absolute inset-0 bg-[var(--color-natural-warm)] rounded-[32px] md:rounded-[40px] -rotate-1 scale-95 opacity-30"></div>
@@ -140,6 +180,9 @@ export function StorySequence({ babyName }: StorySequenceProps) {
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-light text-[var(--color-natural-text)] tracking-tight mb-2 text-center w-full break-words px-2">
               {firstName}
             </h1>
+            <p className="text-lg sm:text-xl md:text-3xl italic text-[var(--color-natural-accent)] font-medium mt-2 md:mt-4">
+              "The Eternal"
+            </p>
           </div>
         </div>
       </Scene>

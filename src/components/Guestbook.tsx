@@ -20,6 +20,9 @@ export function Guestbook() {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
   useEffect(() => {
     const q = query(collection(db, 'guestbook'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -37,27 +40,61 @@ export function Guestbook() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+    
     if (!name.trim() || !message.trim()) return;
 
     setIsSubmitting(true);
     try {
+      // 1. Send Email via our backend API FIRST to check rate limits
+      try {
+        const response = await fetch('/api/guestbook', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: name.trim(), message: message.trim() }),
+        });
+        
+        if (!response.ok) {
+           const data = await response.json();
+           if (response.status === 429) {
+             throw new Error(data.error || 'Too many messages sent. Please try again later.');
+           }
+           if (response.status === 400 || response.status === 500) {
+             throw new Error(data.error || 'Something went wrong. Please try again in a moment.');
+           }
+        }
+      } catch (emailError: any) {
+        // If it's a rate limit or backend error, we stop here and show the error to user
+        console.error('API error:', emailError);
+        throw emailError;
+      }
+
+      // 2. If email succeeds (or isn't rate limited), save to Firebase
       await addDoc(collection(db, 'guestbook'), {
         name: name.trim(),
         message: message.trim(),
         createdAt: serverTimestamp()
       });
+
       setName('');
       setMessage('');
-    } catch (error) {
-      console.error("Error adding entry:", error);
-      alert("There was an error saving your message. Please try again.");
+      setSuccessMsg('Thank you for your warm wish!');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccessMsg(''), 5000);
+    } catch (error: any) {
+      console.error("Submission error");
+      setErrorMsg(error.message || 'Something went wrong. Please try again in a moment. If the problem continues, our team has been notified.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section className="pt-32 pb-16 bg-[var(--color-natural-light)] relative border-t border-[var(--color-natural-border)]/30" ref={ref}>
+    <section id="guestbook" className="pt-16 md:pt-24 pb-12 bg-[var(--color-natural-light)] relative border-t border-[var(--color-natural-border)]/30" ref={ref}>
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--color-natural-accent) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
       <div className="container mx-auto px-6 max-w-4xl relative z-10">
         <motion.div
@@ -113,6 +150,19 @@ export function Guestbook() {
                   placeholder="Your Message"
                 />
               </div>
+              
+              {errorMsg && (
+                <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-sans">
+                  {errorMsg}
+                </div>
+              )}
+              
+              {successMsg && (
+                <div className="p-4 rounded-xl bg-green-50 border border-green-100 text-green-600 text-sm font-sans">
+                  {successMsg}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isSubmitting || !name.trim() || !message.trim()}

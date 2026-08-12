@@ -1,23 +1,88 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const NAMES = [
-  { name: "Theodore", meaning: "Gift of God", origin: "Greek" },
-  { name: "James", meaning: "Supplanter", origin: "Hebrew" },
-  { name: "Alexander", meaning: "Defender of Men", origin: "Greek" },
-  { name: "Benjamin", meaning: "Son of the Right Hand", origin: "Hebrew" },
-  { name: "Arthur", meaning: "Bear", origin: "Celtic" },
-  { name: "Harrison", meaning: "Son of Harry", origin: "English" },
-  { name: "Nathaniel", meaning: "God has Given", origin: "Hebrew" },
-  { name: "Julian", meaning: "Youthful", origin: "Latin" },
-  { name: "Oliver", meaning: "Olive Tree", origin: "Latin" },
-  { name: "Sebastian", meaning: "Venerable", origin: "Greek" },
-  { name: "Finn", meaning: "Fair", origin: "Irish" },
-  { name: "Silas", meaning: "Wood, Forest", origin: "Latin" }
+  { name: "Iremide", meaning: "My goodness has arrived" },
+  { name: "Ore Oluwa", meaning: "God's gift" },
+  { name: "Opemipo", meaning: "my praise is enormous" },
+  { name: "Boluwatife", meaning: "As God pleases" },
+  { name: "Oluwadamilare", meaning: "God has vindicated me" },
+  { name: "Olamide", meaning: "my wealth has come" },
+  { name: "Ajibola", meaning: "one who wakes up to meet wealth" },
+  { name: "Ademide", meaning: "my crown has arrived" },
+  { name: "Ayokunnumi", meaning: "I am full of joy" },
+  { name: "Moriopeda", meaning: "I have reasons to be grateful" },
+  { name: "Oluwatamilore", meaning: "God has given me a gift" },
+  { name: "Ayinla", meaning: "A child meant to be praised, fetted, and disciplined" }
 ];
+
+function LikeButton() {
+  const [isLiked, setIsLiked] = useState(false);
+  const [bubbles, setBubbles] = useState<{ id: number; x: number; delay: number }[]>([]);
+
+  const handleLike = () => {
+    if (!isLiked) {
+      setIsLiked(true);
+      const newBubbles = Array.from({ length: 6 }).map((_, i) => ({
+        id: Date.now() + i,
+        x: (Math.random() - 0.5) * 60,
+        delay: Math.random() * 0.2
+      }));
+      setBubbles(newBubbles);
+      setTimeout(() => setBubbles([]), 1000);
+    } else {
+      setIsLiked(false);
+    }
+  };
+
+  return (
+    <div className="relative inline-flex items-center justify-center mt-2">
+      <button 
+        onClick={handleLike}
+        className={`group relative flex items-center gap-3 px-6 py-3 rounded-full border transition-all duration-300 ${
+          isLiked 
+            ? 'bg-blue-50/80 border-blue-200 text-blue-500 shadow-sm shadow-blue-100/50' 
+            : 'bg-white/50 border-[var(--color-natural-border)] text-[var(--color-natural-text)]/50 hover:bg-white hover:text-blue-400 hover:border-blue-200 hover:shadow-md'
+        }`}
+      >
+        <Heart 
+          size={18} 
+          className={`transition-all duration-500 ${
+            isLiked ? 'fill-blue-500 text-blue-500 scale-110' : 'group-hover:scale-110'
+          }`} 
+        />
+        <span className="text-xs font-sans uppercase tracking-[0.2em] font-semibold mt-0.5">
+          {isLiked ? 'Loved' : 'Like'}
+        </span>
+      </button>
+      
+      <AnimatePresence>
+        {bubbles.map(b => (
+          <motion.div
+            key={b.id}
+            initial={{ opacity: 0, y: 0, x: b.x, scale: 0.5 }}
+            animate={{ 
+              opacity: [0, 1, 0], 
+              y: -80 - Math.random() * 40, 
+              x: b.x + (Math.random() - 0.5) * 40, 
+              scale: [0.5, 1.2, 1] 
+            }}
+            transition={{ duration: 0.8, delay: b.delay, ease: "easeOut" }}
+            className="absolute pointer-events-none text-blue-400 z-50"
+            style={{ top: '10px' }}
+          >
+            <Heart size={16} fill="currentColor" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function StackedNames() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,9 +137,9 @@ export function StackedNames() {
   }, []);
 
   return (
-    <section className="py-24 md:py-32 relative z-20" ref={containerRef}>
+    <section className="py-16 md:py-24 relative z-20" ref={containerRef}>
       <div className="container mx-auto px-6 max-w-5xl">
-        <div className="section-header text-center mb-24 md:mb-32 flex flex-col items-center">
+        <div className="section-header text-center mb-16 md:mb-20 flex flex-col items-center">
           <div className="mb-4 flex items-center gap-3 justify-center">
             <div className="h-[1px] w-12 bg-[var(--color-natural-accent)]"></div>
             <span className="text-sm italic font-sans text-[var(--color-natural-accent)] tracking-widest uppercase">
@@ -90,7 +155,7 @@ export function StackedNames() {
           </p>
         </div>
 
-        <div className="relative w-full pb-[15vh]">
+        <div className="relative w-full pb-[8vh]">
           {NAMES.map((item, index) => (
             <div 
               key={index}
@@ -99,7 +164,7 @@ export function StackedNames() {
                 top: `${120 + index * 16}px`, 
                 height: '60vh',
                 minHeight: '400px',
-                marginBottom: '10vh',
+                marginBottom: '8vh',
                 zIndex: index
               }}
             >
@@ -122,13 +187,7 @@ export function StackedNames() {
                   <p className="text-lg sm:text-xl md:text-3xl italic text-[var(--color-natural-accent)] font-medium mb-8 md:mb-10 px-4">
                     "{item.meaning}"
                   </p>
-                  <div className="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
-                    <div className="hidden sm:block h-[1px] w-8 md:w-12 bg-[var(--color-natural-border)]"></div>
-                    <div className="text-[10px] uppercase tracking-[0.2em] font-sans text-[var(--color-natural-text)]/50 font-bold">
-                      Origin: {item.origin}
-                    </div>
-                    <div className="hidden sm:block h-[1px] w-8 md:w-12 bg-[var(--color-natural-border)]"></div>
-                  </div>
+                  <LikeButton />
                 </div>
               </div>
             </div>
