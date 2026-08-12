@@ -57,7 +57,7 @@ export function Guestbook() {
   };
 
   return (
-    <section className="py-32 bg-[var(--color-natural-light)] relative border-t border-[var(--color-natural-border)]/30" ref={ref}>
+    <section className="pt-32 pb-16 bg-[var(--color-natural-light)] relative border-t border-[var(--color-natural-border)]/30" ref={ref}>
       <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--color-natural-accent) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
       <div className="container mx-auto px-6 max-w-4xl relative z-10">
         <motion.div

@@ -70,7 +70,7 @@ export function StackedNames() {
           
           gsap.to(inner, {
             scale: 0.92,
-            opacity: 0.3,
+            opacity: 1, // Keep card visible, just scale down
             y: -20,
             ease: "none",
             scrollTrigger: {
